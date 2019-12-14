@@ -2,8 +2,8 @@
 This repository contains programming assigments and projects for Udacity's Deep RL Nanodegree program.
 
 ## 1. Setup and usage
-We would use dockerized env for execution the project files. The requirements stemming from udacitys
- [repo](https://github.com/udacity/deep-reinforcement-learning/blob/master/python/requirements.txt) are 
+We would use dockerized env for execution the project files. The requirements stemming from [udacitys
+ repo](https://github.com/udacity/deep-reinforcement-learning/blob/master/python/requirements.txt) are 
 located [here](./Docker/requirements.txt)
 
 Just update the requirements if necessary. After checking ut just run `docker-compose up -d jupyter` 
