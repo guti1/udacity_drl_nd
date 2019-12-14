@@ -1,0 +1,10 @@
+.idea
+.idea/
+.Python
+*.pyc
+.eggs
+*.egg-info
+.bash_history
+.python_history
+.ipynb_checkpoints
+.DS_store
