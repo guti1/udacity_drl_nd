@@ -1,0 +1,15 @@
+version: '3.3'
+services:
+  jupyter:
+    build:
+      context: ./Docker
+    image: "guti1/drlnd"
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/home/jovyan/work
+      - .:/opt/project
+    command: [ "sh", "-c",
+               "NB_UID=`ls -nd /home/jovyan/work | cut -d ' ' -f 3` \
+                NB_GID=`ls -nd /home/jovyan/work | cut -d ' ' -f 4` \
+                start-notebook.sh --NotebookApp.token='' --ip=0.0.0.0 --allow-root"]
