@@ -6,6 +6,9 @@ We would use dockerized env for execution the project files. The requirements st
  repo](https://github.com/udacity/deep-reinforcement-learning/blob/master/python/requirements.txt) are 
 located [here](./Docker/requirements.txt)
 
-Just update the requirements if necessary. After checking ut just run `docker-compose up -d jupyter` 
+Just update the requirements if necessary, but afterward you should also rebuild the docker-image 
+with `docker-compose build --force-rm`. 
+
+After checking out just run `docker-compose up -d jupyter` 
 and the jupyter notebook server should be accessible on your localhost on port 8888. If necessary, 
 you can modify the [docker-compose.yml](docker-compose.yml)
