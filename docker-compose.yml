@@ -11,5 +11,4 @@ services:
       - .:/opt/project
     command: [ "sh", "-c",
                "NB_UID=`ls -nd /home/jovyan/work | cut -d ' ' -f 3` \
-                NB_GID=`ls -nd /home/jovyan/work | cut -d ' ' -f 4` \
-                start-notebook.sh --NotebookApp.token='' --ip=0.0.0.0 --allow-root"]
+                NB_GID=`ls -nd /home/jovyan/work | cut -d ' ' -f 4` "]
