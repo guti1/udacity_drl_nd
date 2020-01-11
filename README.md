@@ -12,3 +12,8 @@ with `docker-compose build --force-rm`.
 After checking out just run `docker-compose up -d jupyter` 
 and the jupyter notebook server should be accessible on your localhost on port 8888. If necessary, 
 you can modify the [docker-compose.yml](docker-compose.yml)
+
+### 1.1. GPU
+
+If You are using a client with nvidia GPU, there is also a separate dockerfile and service for that.
+To use it run `docker-compose up -d jupyter-gpu`  
