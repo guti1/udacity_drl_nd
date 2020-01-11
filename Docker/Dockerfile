@@ -2,7 +2,7 @@ FROM tensorflow/tensorflow:2.0.0-py3-jupyter
 
 USER root
 RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension
-
+ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
     && apt-get install -y  \
