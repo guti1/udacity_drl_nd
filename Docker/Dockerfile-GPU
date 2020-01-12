@@ -36,12 +36,7 @@ RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER
 
 EXPOSE 8888
 
-COPY startup_script.sh startup_script.sh
-# Give execution permissions
-RUN chmod $NB_UID startup_script.sh
-
 USER $NB_USER
 WORKDIR $HOME/work
 
-ENTRYPOINT xvfb-run -s "-screen 0 1400x900x24"
 
