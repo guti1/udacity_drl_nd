@@ -1,0 +1,47 @@
+FROM tensorflow/tensorflow:2.0.0-gpu-py3-jupyter
+
+USER root
+RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       apt-utils \
+       build-essential \
+       curl \
+       xvfb \
+       ffmpeg \
+       xorg-dev \
+       libsdl2-dev \
+       swig \
+       cmake \
+       python-opengl
+
+COPY requirements.txt requirements.txt
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+# --- <Populate jupyter> ---
+ENV SHELL=/bin/bash \
+    NB_USER=jovyan \
+    NB_UID=1000 \
+    NB_GID=100 \
+    LC_ALL=en_US.UTF-8 \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8
+
+ENV HOME=/home/$NB_USER
+
+RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER
+
+EXPOSE 8888
+
+COPY startup_script.sh startup_script.sh
+# Give execution permissions
+RUN chmod $NB_UID startup_script.sh
+
+USER $NB_USER
+WORKDIR $HOME/work
+
+ENTRYPOINT xvfb-run -s "-screen 0 1400x900x24"
+
