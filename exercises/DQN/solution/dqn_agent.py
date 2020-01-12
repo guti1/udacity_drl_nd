@@ -87,6 +87,21 @@ class Agent():
 
         ## TODO: compute and minimize the loss
         "*** YOUR CODE HERE ***"
+        # wee take the max from the predicted for the 4 actions, thus each row
+        #represent a state with 4 possible actions, we take the max from them
+        Q_predicted = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
+
+        # as next step we calculate the current Q based on the discouted forward Q - predicted
+        Q_current = rewards + (gamma * Q_predicted * (1 - dones))
+
+        # Get expected Q values from local model
+        Q_expected = self.qnetwork_local(states).gather(1, actions)
+
+        # Get loss and minimize it
+        loss = F.mse_loss(Q_expected, Q_current)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
 
         # ------------------- update target network ------------------- #
         self.soft_update(self.qnetwork_local, self.qnetwork_target, TAU)                     
