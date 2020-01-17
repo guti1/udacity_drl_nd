@@ -18,6 +18,7 @@ services:
       context: ./Docker
       dockerfile: Dockerfile-GPU
     image: "guti1/drlnd-gpu"
+    runtime: nvidia
     ports:
       - "8888:8888"
     volumes:
