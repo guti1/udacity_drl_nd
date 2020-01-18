@@ -1,0 +1,29 @@
+FROM tensorflow/tensorflow:2.0.0-gpu-py3-jupyter
+
+USER root
+RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       apt-utils \
+       build-essential \
+       curl \
+       xvfb \
+       ffmpeg \
+       xorg-dev \
+       libsdl2-dev \
+       swig \
+       cmake \
+       python-opengl
+
+COPY requirements.txt requirements.txt
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+RUN pip install tensorflow-gpu==1.7.1
+
+EXPOSE 8888
+
+WORKDIR /tf
+
+

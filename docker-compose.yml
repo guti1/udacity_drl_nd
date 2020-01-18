@@ -1,15 +1,33 @@
-version: '3.3'
+version: '2.3'
 services:
   jupyter:
     build:
       context: ./Docker
+      dockerfile: Dockerfile
     image: "guti1/drlnd"
     ports:
       - "8888:8888"
     volumes:
-      - .:/home/jovyan/work
-      - .:/opt/project
+      - .:/tf
     command: [ "sh", "-c",
-               "NB_UID=`ls -nd /home/jovyan/work | cut -d ' ' -f 3` \
-                NB_GID=`ls -nd /home/jovyan/work | cut -d ' ' -f 4` \
-                start-notebook.sh --NotebookApp.token='' --ip=0.0.0.0 --allow-root"]
+               "jupyter-lab --ip 0.0.0.0 --port 8888 --allow-root --LabApp.token=''"]
+  jupyter-gpu:
+    build:
+      context: ./Docker
+      dockerfile: Dockerfile-GPU
+    image: "guti1/drlnd-gpu"
+    runtime: nvidia
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/tf
+    command: [ "sh", "-c",
+                "jupyter-lab --ip 0.0.0.0 --port 8888 --allow-root --LabApp.token=''"]
+  debug:
+    build:
+      context: ./Docker
+      dockerfile: Dockerfile-debug
+    image: "guti1/drlnd-debug"
+    volumes:
+      - .:/opt/project
+    command: [ "sh", "-c", "/usr/local/bin/startup_script.sh"]

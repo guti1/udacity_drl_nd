@@ -8,3 +8,5 @@
 .python_history
 .ipynb_checkpoints
 .DS_store
+*.app
+__pycache__
