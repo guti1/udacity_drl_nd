@@ -16,4 +16,11 @@ you can modify the [docker-compose.yml](docker-compose.yml)
 ### 1.1. GPU
 
 If You are using a client with nvidia GPU, there is also a separate dockerfile and service for that.
-To use it run `docker-compose up -d jupyter-gpu`  
+To use it run `docker-compose up -d jupyter-gpu`. Nvidia driver, CUDA, nvidia-docker etc are prerequisites 
+to use the GPU enabled jupyter, a more detailed guide will probably follow soon. 
+
+### 1.2 Debug
+
+Since I like to use an IDE (e.g. PyCharm) for debugging, also included a separate service for debugging through
+docker-compose with the IDE. Just add the `debug` service from the compose file as project interpreter, and you 
+can use the IDE for debugging the code running inside the defined docker container. 
