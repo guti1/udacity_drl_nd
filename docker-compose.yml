@@ -8,11 +8,9 @@ services:
     ports:
       - "8888:8888"
     volumes:
-      - .:/home/jovyan/work
-      - .:/opt/project
+      - .:/tf
     command: [ "sh", "-c",
-               "NB_UID=`ls -nd /home/jovyan/work | cut -d ' ' -f 3` \
-                NB_GID=`ls -nd /home/jovyan/work | cut -d ' ' -f 4`"]
+               "jupyter-lab --ip 0.0.0.0 --port 8888 --allow-root --LabApp.token=''"]
   jupyter-gpu:
     build:
       context: ./Docker
