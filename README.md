@@ -24,3 +24,12 @@ to use the GPU enabled jupyter, a more detailed guide will probably follow soon.
 Since I like to use an IDE (e.g. PyCharm) for debugging, also included a separate service for debugging through
 docker-compose with the IDE. Just add the `debug` service from the compose file as project interpreter, and you 
 can use the IDE for debugging the code running inside the defined docker container. 
+
+
+## Exercises an projects.
+
+The solutions for the actual exercises and project can be found in [this](./exercises) folder. 
+ - [DQN - LunarLander](./exercises/DQN)
+ - [Project1: Navigation](./exercises/projects/project1_navigation)
+ 
+ I will add further content as I progress through the nanodegree program.
