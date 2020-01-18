@@ -30,4 +30,4 @@ services:
     image: "guti1/drlnd-debug"
     volumes:
       - .:/opt/project
-    command: [ "sh", "-c", "/usr/local/bin/startup_script.sh"]
+    command: [ "sh", "-c"]
