@@ -24,7 +24,7 @@ periods.
 
 ![Trained Agent][image1]
 
-###1. Getting started
+### 1. Getting started
 
 The Unity based environment is provided by Udacity, you can get the enviroment matching your needs form the links below:
 
@@ -54,7 +54,7 @@ underlying code through the debugger. After I was sure I had a functioning piece
 instance and trained it through the jupyter notebook.
 
 
-###2. Poject-Solution
+### 2. Poject-Solution
 
 #### 2.1 Deep Q-Network.
 As a baseline solution I implemented a DQN-agent as in the `LunarLander_v2` [exercise](../../../DQN/), 
@@ -97,8 +97,11 @@ The `BATCH_SIZE` parameter is the size of the random sample we take from the mem
 `UPDATE_EVERY` how often should the agent learn (take sample fo buffer and update the weights).
  
  
- With the current approach the agent solved the task in ... steps. 
+ With the current approach the agent solved the task in 405 steps. 
+ 
+ 
  ![image2](dqn_agent.png)
+
 
 #### 2.1.2 Future work
 
