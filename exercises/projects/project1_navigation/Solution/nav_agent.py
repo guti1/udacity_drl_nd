@@ -1,7 +1,7 @@
 import numpy as np
 import random
 from collections import namedtuple, deque
-from model import QNetwork
+from Solution.model import QNetwork
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
@@ -158,3 +158,49 @@ class ReplayBuffer:
     def __len__(self):
         """Return the current size of internal memory."""
         return len(self.memory)
+
+class DDQN_Agent(Agent):
+    def __init__(self, state_size, action_size, seed):
+        self.state_size = state_size
+        self.action_size = action_size
+        self.seed = random.seed(seed)
+
+        # Q-Network
+        self.qnetwork_local = QNetwork(state_size, action_size, seed).to(device)
+        self.qnetwork_target = QNetwork(state_size, action_size, seed).to(device)
+        self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=LR)
+
+        # Replay memory
+        self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, seed)
+        # Initialize time step (for updating every UPDATE_EVERY steps)
+        self.t_step = 0
+
+    def learn(self, experiences, gamma):
+        """Update value parameters using given batch of experience tuples.
+
+        Params
+        ======
+            experiences (Tuple[torch.Tensor]): tuple of (s, a, r, s', done) tuples
+            gamma (float): discount factor
+        """
+        states, actions, rewards, next_states, dones = experiences
+
+        # TODO: compute and minimize the loss
+        "*** YOUR CODE HERE ***"
+        # wee take the max from the predicted for the 4 actions, thus each row
+        # represent a state with 4 possible actions, we take the max from them.
+        q_local_actions = self.qnetwork_local(next_states).detach().max(1)[1].unsqueeze(1)
+        q_predicted = self.qnetwork_target(next_states).detach().gather(1, q_local_actions)
+        # as next step we calculate the current Q based on the discounted forward Q - predicted
+        q_target = rewards + (gamma * q_predicted * (1 - dones))
+        # Get expected Q values from local model
+        q_expected = self.qnetwork_local(states).gather(1, actions)
+
+        # Get loss and minimize it
+        loss = F.mse_loss(q_expected, q_target)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+        # ------------------- update target network ------------------- #
+        self.soft_update(self.qnetwork_local, self.qnetwork_target, TAU)
