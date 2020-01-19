@@ -190,9 +190,9 @@ class DDQN_Agent(Agent):
         # wee take the max from the predicted for the 4 actions, thus each row
         # represent a state with 4 possible actions, we take the max from them.
         q_local_actions = self.qnetwork_local(next_states).detach().max(1)[1].unsqueeze(1)
-        q_target_next = self.qnetwork_target(next_states).detach().gather(1, q_local_actions)
+        q_predicted = self.qnetwork_target(next_states).detach().gather(1, q_local_actions)
         # as next step we calculate the current Q based on the discounted forward Q - predicted
-        q_target = rewards + (gamma * q_target_next * (1 - dones))
+        q_target = rewards + (gamma * q_predicted * (1 - dones))
         # Get expected Q values from local model
         q_expected = self.qnetwork_local(states).gather(1, actions)
 
