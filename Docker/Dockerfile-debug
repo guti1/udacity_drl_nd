@@ -10,7 +10,8 @@ RUN apt-get update \
        libsdl2-dev \
        swig \
        cmake \
-       python-opengl
+       python-opengl\
+       x11-utils
 
 COPY requirements.txt requirements.txt
 RUN pip install --upgrade pip
