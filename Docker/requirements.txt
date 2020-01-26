@@ -16,6 +16,7 @@ ipykernel
 seaborn
 cffi
 gym
+atari-py
 box2d-py
 box2d-kengz
 torch==1.2.0
