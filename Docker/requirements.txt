@@ -16,6 +16,7 @@ ipykernel
 seaborn
 cffi
 gym
+atari-py
 box2d-py
 box2d-kengz
 torch==1.2.0
@@ -23,3 +24,4 @@ torchvision==0.4.0
 wget
 mlagents
 unityagents
+JSAnimation

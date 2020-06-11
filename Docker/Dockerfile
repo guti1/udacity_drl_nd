@@ -31,6 +31,7 @@ RUN apt-get update \
     python-gtkglext1 \
     xpra \
     xvfb \
+    x11-utils\
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
