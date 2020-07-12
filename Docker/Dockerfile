@@ -5,41 +5,44 @@ RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
-    && apt-get install -y  \
-    python-numpy \
-    python-scipy \
-    python-pyglet \
-    python-setuptools \
-    libpq-dev \
-    libjpeg-dev \
-    curl \
-    cmake \
-    swig \
-    freeglut3 \
-    python-opengl \
-    libboost-all-dev \
-    libglu1-mesa \
-    libglu1-mesa-dev \
-    libsdl2-2.0-0\
-    libgles2-mesa-dev \
-    libsdl2-dev \
-    wget \
-    unzip \
-    git \
-    xserver-xorg-input-void \
-    xserver-xorg-video-dummy \
-    python-gtkglext1 \
-    xpra \
-    xvfb \
-    x11-utils\
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y --no-install-recommends \
+       apt-utils \
+       build-essential \
+       curl \
+       xvfb \
+       ffmpeg \
+       xorg-dev \
+       libsdl2-dev \
+       swig \
+       cmake \
+       python-opengl\
+       x11-utils \
+       g++  \
+       git  \
+       cmake \
+       zlib1g-dev \
+       libjpeg-dev \
+       libboost-all-dev \
+       libsdl2-dev \
+       swig \
+       python3  \
+       python3-dev  \
+       python3-future  \
+       python3-pip  \
+       python3-setuptools  \
+       python3-wheel  \
+       python3-tk \
+       libopenblas-base  \
+       libatlas-base-dev
+
 
 COPY requirements.txt requirements.txt
+
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
-RUN jupyter serverextension enable --py jupyterlab --sys-prefix
 
+ENV DEBIAN_FRONTEND teletype
+ENV DISPLAY=:0
 EXPOSE 8888
 
 WORKDIR /tf

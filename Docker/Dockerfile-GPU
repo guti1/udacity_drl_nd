@@ -39,7 +39,7 @@ RUN apt-get update \
 COPY requirements.txt requirements.txt
 
 RUN pip install --upgrade pip
-RUN pip install tensorflow-gpu==1.7.1
+RUN pip install tensorflow-gpu==1.15.2
 RUN pip install -r requirements.txt
 
 ENV DEBIAN_FRONTEND teletype
