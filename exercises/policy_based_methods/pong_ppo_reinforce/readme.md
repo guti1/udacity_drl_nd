@@ -13,7 +13,9 @@ the env.
  in [parallelEnv](./parallelEnv.py) where the parallel execution framework for the game environment is located.
  
  Using PPO for the pong exercise the convergence seems to happening faster (after 500 episodes), however the mean 
- rewards stayed in the negative range.
+ rewards stayed in the negative range. 
+ 
+ Update on `2020.07.18`:  - at least for now the mean reward around 0.  
  
  - [pong-ppo - exercise](./pong-PPO.ipynb)
  - [pong-ppo - solution](./pong-PPO_sol.ipynb)
