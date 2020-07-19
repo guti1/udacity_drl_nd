@@ -22,8 +22,10 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class Agent():
     """Interacts with and learns from the environment."""
     
-    def __init__(self, state_size, action_size, random_seed,
-                le_actor=1e-4, lr_critic=1e-4,):
+    def __init__(self, state_size, action_size, random_seed, actor_fc1_size=512, actor_fc2_size=256,
+                 actor_fc3_size=128, critic_fcs1_size=512, critic_fc2_size=256, critic_fc3_size=128,
+                 lr_actor=0.0001, lr_critic=0.0001, batch_size=128, buffer_size=int(1e5), gamma=0.99,
+                 tau=0.001, weight_decay=0):
         """Initialize an Agent object.
         
         Params
@@ -31,26 +33,51 @@ class Agent():
             state_size (int): dimension of each state
             action_size (int): dimension of each action
             random_seed (int): random seed
+            actor_fc1_size (int): number of neurons in actor's first hidden layer
+            actor_fc2_size (int): number of neurons in actor's second hidden layer
+            actor_fc3_size (int): number of neurons in actor's third hidden layer
+            critics_fc1_size (int): number of neurons in critic's first hidden layer
+            critics_fc2_size (int): number of neurons in critic's second hidden layer
+            critics_fc3_size (int): number of neurons in critic's third hidden layer
+            lr_actor(float): learning rate actor
+            lr_critic(float): learning rate critic
+            batch_size(int): minibatch size
+            buffer_size(int): replay buffer size
+            gamma(float): discount factor
+            tau(float): soft update of target param
+            weight_decay(float): L2 weight decay
         """
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(random_seed)
+        self.lr_actor = lr_actor
+        self.lr_critic = lr_critic
+        self.batch_size = batch_size
+        self.buffer_size = int(buffer_size)
+        self.gamma = gamma
+        self.tau = tau
+        self.weight_decay = weight_decay
 
         # Actor Network (w/ Target Network)
-        self.actor_local = Actor(state_size, action_size, random_seed).to(device)
-        self.actor_target = Actor(state_size, action_size, random_seed).to(device)
-        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=LR_ACTOR)
+        self.actor_local = Actor(state_size, action_size, random_seed, actor_fc1_size,
+                                 actor_fc2_size, actor_fc3_size).to(device)
+        self.actor_target = Actor(state_size, action_size, random_seed, actor_fc1_size,
+                                  actor_fc2_size, actor_fc3_size).to(device)
+        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=lr_actor)
 
         # Critic Network (w/ Target Network)
-        self.critic_local = Critic(state_size, action_size, random_seed).to(device)
-        self.critic_target = Critic(state_size, action_size, random_seed).to(device)
-        self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=LR_CRITIC, weight_decay=WEIGHT_DECAY)
+        self.critic_local = Critic(state_size, action_size, random_seed, critic_fcs1_size,
+                                   critic_fc2_size, critic_fc3_size).to(device)
+        self.critic_target = Critic(state_size, action_size, random_seed, critic_fcs1_size,
+                                    critic_fc2_size, critic_fc3_size).to(device)
+        self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=lr_critic,
+                                           weight_decay=weight_decay)
 
         # Noise process
         self.noise = OUNoise(action_size, random_seed)
 
         # Replay memory
-        self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed)
+        self.memory = ReplayBuffer(action_size, self.buffer_size, self.batch_size, random_seed)
     
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
@@ -58,9 +85,9 @@ class Agent():
         self.memory.add(state, action, reward, next_state, done)
 
         # Learn, if enough samples are available in memory
-        if len(self.memory) > BATCH_SIZE:
+        if len(self.memory) > self.batch_size:
             experiences = self.memory.sample()
-            self.learn(experiences, GAMMA)
+            self.learn(experiences, self.gamma)
 
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""
@@ -114,8 +141,8 @@ class Agent():
         self.actor_optimizer.step()
 
         # ----------------------- update target networks ----------------------- #
-        self.soft_update(self.critic_local, self.critic_target, TAU)
-        self.soft_update(self.actor_local, self.actor_target, TAU)                     
+        self.soft_update(self.critic_local, self.critic_target, self.tau)
+        self.soft_update(self.actor_local, self.actor_target, self.tau)
 
     def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.
