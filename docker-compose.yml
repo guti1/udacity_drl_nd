@@ -30,4 +30,4 @@ services:
     image: "guti1/drlnd-debug"
     volumes:
       - .:/opt/project
-    command: [ "sh", "-c"]
+    command: [ "sh", "-c", "xvfb-run -s '-screen 0 1400x900x24'"]
