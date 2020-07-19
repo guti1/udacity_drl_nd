@@ -65,6 +65,10 @@ class Agent():
                                   actor_fc2_size, actor_fc3_size).to(device)
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=lr_actor)
 
+        # Make sure the Target Network has the same weight values as the Local Network
+        for target, local in zip(self.actor_target.parameters(), self.actor_local.parameters()):
+            target.data.copy_(local.data)
+
         # Critic Network (w/ Target Network)
         self.critic_local = Critic(state_size, action_size, random_seed, critic_fcs1_size,
                                    critic_fc2_size, critic_fc3_size).to(device)
@@ -72,6 +76,9 @@ class Agent():
                                     critic_fc2_size, critic_fc3_size).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=lr_critic,
                                            weight_decay=weight_decay)
+        # Make sure the Target Network has the same weight values as the Local Network
+        for target, local in zip(self.critic_target.parameters(), self.critic_local.parameters()):
+            target.data.copy_(local.data)
 
         # Noise process
         self.noise = OUNoise(action_size, random_seed)
@@ -160,7 +167,7 @@ class Agent():
 class OUNoise:
     """Ornstein-Uhlenbeck process."""
 
-    def __init__(self, size, seed, mu=0., theta=0.15, sigma=0.2):
+    def __init__(self, size, seed, mu=0., theta=0.15, sigma=0.1):
         """Initialize parameters and noise process."""
         self.mu = mu * np.ones(size)
         self.theta = theta
