@@ -43,13 +43,22 @@ def ddpg_train(
 
         scores_window_100.append(np.mean(score))
         scores.append(np.mean(score))
-
+        original_stdout = sys.stdout
         if episode % print_every == 0:
-            print(
-                "\rEpisode {}\tAverage Score: {:.2f}".format(
-                    episode, np.mean(scores_window_100)
+            with open("log.txt", "w") as f:
+                sys.stdout = f
+                print(
+                    "\rEpisode {}\tAverage Score: {:.2f}".format(
+                        episode, np.mean(scores_window_100)
+                    )
                 )
-            )
+
+                sys.stdout = original_stdout
+                print(
+                    "\rEpisode {}\tAverage Score: {:.2f}".format(
+                        episode, np.mean(scores_window_100)
+                    )
+                )
 
         if np.mean(scores_window_100) >= 30.0:
             # Agent has reached target average score. Ending training
