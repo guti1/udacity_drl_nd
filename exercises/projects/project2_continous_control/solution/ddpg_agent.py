@@ -10,33 +10,14 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-BUFFER_SIZE = int(1e5)  # replay buffer size
-BATCH_SIZE = 128  # minibatch size
-GAMMA = 0.99  # discount factor
-TAU = 1e-3  # for soft update of target parameters
-LR_ACTOR = 1e-4  # learning rate of the actor
-LR_CRITIC = 1e-3  # learning rate of the critic
-WEIGHT_DECAY = 0  # 1e-2      # L2 weight decay
-UPDATE_EVERY = 1
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class Agent:
     """Interacts with and learns from the environment."""
 
-    def __init__(
-        self,
-        state_size,
-        action_size,
-        num_agents,
-        random_seed,
-        actor_hidden_layers,
-        critic_hidden_layers,
-        use_batch_norm,
-        add_noise,
-        grad_clip,
-        agent_params,
-    ):
+    def __init__(self, state_size, action_size, num_agents, random_seed, agent_params):
         """Initialize an Agent object.
 
         Params
@@ -44,36 +25,66 @@ class Agent:
             state_size (int): dimension of each state
             action_size (int): dimension of each action
             random_seed (int): random seed
-            actor_hidden_layers ([int]): list of the sizes each hidden layers in the actor-network
-            hidden_hidden_layers ([int]): list of the sizes each hidden layers in the critic-network
-            use_batch_norm (bool): use or not batch norm between layers
-            add_noise (bool): add Ornstein-Uhlenbeck noise to actions
-            grad_clip (bool): use or not gradient clipping
-
+            agent_params (dict): config-dict for DDPG agent training:
+                agent_params = {
+                                'ACTOR_HIDDEN_LAYERS': [400, 300],
+                                'CRITIC_HIDDEN_LAYERS': [400, 300],
+                                'USE_BATCH_NORM': True,
+                                'ADD_NOISE': True,
+                                'GRAD_CLIP': False,
+                                'BUFFER_SIZE': int(1e5),
+                                'BATCH_SIZE': 64,
+                                'GAMMA': 0.99,
+                                'TAU': 1e-3,
+                                'LR_ACTOR': 1e-4,
+                                'LR_CRITIC': 1e-3,
+                                'WEIGHT_DECAY': 1e-2,
+                                'UPDATE_EVERY': 1,
+                                'UPDATE_FREQ': 1,
+                                'USE_XAVIER': False,
+                            }
         """
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(random_seed)
         self.agent_params = agent_params
-        self.grad_clip = grad_clip
+        self.grad_clip = self.agent_params["GRAD_CLIP"]
 
-        # Actor Network (w/ Target Network)
+        # Actor Network (Local and target Network)
         self.actor_local = Actor(
-            state_size, action_size, random_seed, actor_hidden_layers, use_batch_norm
+            state_size,
+            action_size,
+            random_seed,
+            self.agent_params["ACTOR_HIDDEN_LAYERS"],
+            self.agent_params["USE_BATCH_NORM"],
+            self.agent_params["USE_XAVIER"],
         ).to(device)
         self.actor_target = Actor(
-            state_size, action_size, random_seed, actor_hidden_layers, use_batch_norm
+            state_size,
+            action_size,
+            random_seed,
+            self.agent_params["ACTOR_HIDDEN_LAYERS"],
+            self.agent_params["USE_BATCH_NORM"],
+            self.agent_params["USE_XAVIER"],
         ).to(device)
         self.actor_optimizer = optim.Adam(
             self.actor_local.parameters(), lr=self.agent_params["LR_ACTOR"]
         )
 
-        # Critic Network (w/ Target Network)
+        # Critic Network (Local and Target Network)
         self.critic_local = Critic(
-            state_size, action_size, random_seed, critic_hidden_layers
+            state_size,
+            action_size,
+            random_seed,
+            self.agent_params["CRITIC_HIDDEN_LAYERS"],
+            self.agent_params["USE_XAVIER"],
         ).to(device)
         self.critic_target = Critic(
-            state_size, action_size, random_seed, critic_hidden_layers
+            state_size,
+            action_size,
+            random_seed,
+            self.agent_params["CRITIC_HIDDEN_LAYERS"],
+            self.agent_params["USE_XAVIER"],
         ).to(device)
         self.critic_optimizer = optim.Adam(
             self.critic_local.parameters(),
@@ -83,7 +94,7 @@ class Agent:
 
         # Noise process
         self.noise = OUNoise((num_agents, action_size), random_seed)
-        self.add_noise = add_noise
+        self.add_noise = self.agent_params["ADD_NOISE"]
 
         # Replay memory
         self.memory = ReplayBuffer(
@@ -127,6 +138,7 @@ class Agent:
         if self.add_noise:
             action += self.noise.sample()
 
+        # actions should be mapped to [-1, 1], despite we add some noise to it...
         return np.clip(action, -1, 1)
 
     def reset(self):
@@ -175,8 +187,10 @@ class Agent:
         self.actor_optimizer.step()
 
         # ----------------------- update target networks ----------------------- #
-        self.soft_update(self.critic_local, self.critic_target, TAU)
-        self.soft_update(self.actor_local, self.actor_target, TAU)
+        self.soft_update(
+            self.critic_local, self.critic_target, self.agent_params["TAU"]
+        )
+        self.soft_update(self.actor_local, self.actor_target, self.agent_params["TAU"])
 
     def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.
