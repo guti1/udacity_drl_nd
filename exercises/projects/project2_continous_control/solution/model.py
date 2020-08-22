@@ -8,7 +8,7 @@ import torch.nn.functional as F
 class Actor(nn.Module):
     """Actor (Policy) Model."""
 
-    def __init__(self, state_size, action_size, seed, hidden_layers, use_batch_norm):
+    def __init__(self, state_size, action_size, seed, hidden_layers, use_batch_norm, use_xavier_init):
         """Initialize parameters and build model.
         Params
         ======
@@ -17,15 +17,21 @@ class Actor(nn.Module):
             seed (int): Random seed
             hidden layers([int]): list of the sizes each hidden layers
             use_batch_norm (bool): use or not batch norm between layers
+            use_xavier_init (bool): use Xavier weight init instead of original
         """
         super(Actor, self).__init__()
         self.seed = torch.manual_seed(seed)
         self.batch_norm = use_batch_norm
 
-        def _init_weights(m):
+        def _init_weights_opt(m):
             if isinstance(m, nn.Linear):
                 nn.init.xavier_normal_(m.weight)
                 m.bias.data.fill_(0.01)
+        def _init_weights(m):
+            if isinstance(m, nn.Linear):
+                fan_in = m.weight.data.size()[0]
+                lim = 1. / np.sqrt(fan_in)
+                nn.init.uniform_(m.weight, -lim, lim)
 
         # Construction of the NN conditionally on batch-norm
         if self.batch_norm:
@@ -49,11 +55,18 @@ class Actor(nn.Module):
         self.output = nn.Linear(hidden_layers[-1], action_size)
 
         # Weight init
-        self.hidden_layers.apply(_init_weights)
-        self.output.apply(_init_weights)
+        if not use_xavier_init:
+            self.hidden_layers.apply(_init_weights)
+            self.output.weight.data.uniform_(-3e-3, 3e-3)
+
+        else:
+            self.hidden_layers.apply(_init_weights_opt)
+            self.output.apply(_init_weights_opt)
 
     def forward(self, state):
-        """Build an actor (policy) network that maps states -> actions."""
+        """Build an actor (policy) network that maps states -> actions.
+            Note the final tanh activation which is mapping the actions to [-1, 1]
+        """
         x = state
 
         if self.batch_norm:
@@ -70,7 +83,7 @@ class Actor(nn.Module):
 class Critic(nn.Module):
     """Critic (Value) Model."""
 
-    def __init__(self, state_size, action_size, seed, hidden_layers):
+    def __init__(self, state_size, action_size, seed, hidden_layers, use_xavier_init):
         """Initialize parameters and build model.
         Params
         ======
@@ -78,9 +91,22 @@ class Critic(nn.Module):
             action_size (int): Dimension of each action
             seed (int): Random seed
             hidden layers([int]): list of the sizes each hidden layers
+            use_xavier_init(bool): use Xavier weight init instead of original
+
         """
         super(Critic, self).__init__()
         self.seed = torch.manual_seed(seed)
+
+        def _init_weights_opt(m):
+            if isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight)
+                m.bias.data.fill_(0.01)
+
+        def _init_weights(m):
+            if isinstance(m, nn.Linear):
+                fan_in = m.weight.data.size()[0]
+                lim = 1. / np.sqrt(fan_in)
+                nn.init.uniform_(m.weight, -lim, lim)
 
         self.hidden_layers = nn.ModuleList(
             [
@@ -93,6 +119,15 @@ class Critic(nn.Module):
 
         # Finally the output layer
         self.output = nn.Linear(hidden_layers[-1], 1)
+
+        # Weight init
+        if not use_xavier_init:
+            self.hidden_layers.apply(_init_weights)
+            self.output.weight.data.uniform_(-3e-4, 3e-4)
+
+        else:
+            self.hidden_layers.apply(_init_weights_opt)
+            self.output.apply(_init_weights_opt)
 
     def forward(self, state, action):
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
