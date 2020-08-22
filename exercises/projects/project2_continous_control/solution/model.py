@@ -8,7 +8,15 @@ import torch.nn.functional as F
 class Actor(nn.Module):
     """Actor (Policy) Model."""
 
-    def __init__(self, state_size, action_size, seed, hidden_layers, use_batch_norm, use_xavier_init):
+    def __init__(
+        self,
+        state_size,
+        action_size,
+        seed,
+        hidden_layers,
+        use_batch_norm,
+        use_xavier_init,
+    ):
         """Initialize parameters and build model.
         Params
         ======
@@ -27,10 +35,11 @@ class Actor(nn.Module):
             if isinstance(m, nn.Linear):
                 nn.init.xavier_normal_(m.weight)
                 m.bias.data.fill_(0.01)
+
         def _init_weights(m):
             if isinstance(m, nn.Linear):
                 fan_in = m.weight.data.size()[0]
-                lim = 1. / np.sqrt(fan_in)
+                lim = 1.0 / np.sqrt(fan_in)
                 nn.init.uniform_(m.weight, -lim, lim)
 
         # Construction of the NN conditionally on batch-norm
@@ -105,7 +114,7 @@ class Critic(nn.Module):
         def _init_weights(m):
             if isinstance(m, nn.Linear):
                 fan_in = m.weight.data.size()[0]
-                lim = 1. / np.sqrt(fan_in)
+                lim = 1.0 / np.sqrt(fan_in)
                 nn.init.uniform_(m.weight, -lim, lim)
 
         self.hidden_layers = nn.ModuleList(
