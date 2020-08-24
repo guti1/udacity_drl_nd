@@ -1,7 +1,10 @@
 import numpy as np
-from collections import deque
+import seaborn as sns
+import os
 import torch
 import sys
+from collections import deque
+import matplotlib.pyplot as plt
 
 
 def ddpg_train(
@@ -61,7 +64,7 @@ def ddpg_train(
                 )
 
         if np.mean(scores_window_100) >= 30.0:
-            # Agent has reached target average score. Ending training
+            # Agent has reached target average score => end train
             print(
                 "\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}".format(
                     episode - 100, np.mean(scores_window_100)
@@ -69,10 +72,10 @@ def ddpg_train(
             )
             torch.save(
                 agent.actor_local.state_dict(), actor_model_pth + "_solution"
-            )  # 'actor_model.pth'
+            )
             torch.save(
                 agent.critic_local.state_dict(), critic_model_pth + "_solution"
-            )  #
+            )
             break
 
     return scores
@@ -103,3 +106,16 @@ def ddpg_present(agent, env, brain_name, num_agents, actor_model_pth, critic_mod
     print("Mean Score (for all the agents): {}".format(np.mean(score)))
     print("Score for individual agents:")
     print(score)
+
+
+def plot_experiment(score, exp_id):
+    sns.set()
+    folder = "./experiments/"
+    os.makedirs(folder, exist_ok=True)
+    plt.figure(figsize=(15, 8))
+    plt.plot(np.arange(1, len(score) + 1), np.squeeze(np.vstack(score)), label=exp_id)
+    plt.xlabel("Episode #")
+    plt.ylabel("Score")
+    plt.title(exp_id)
+    plt.legend()
+    plt.savefig("./experiments/exp_" + str(exp_id) + ".png")
