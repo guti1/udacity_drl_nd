@@ -15,7 +15,6 @@ def ddpg_train(
     actor_model_pth,
     critic_model_pth,
     n_episodes=1000,
-    max_steps=1000,
     print_every=20,
 ):
 
@@ -31,7 +30,7 @@ def ddpg_train(
         # Reset the noise in the agents
         agent.reset()
 
-        for t in range(max_steps):
+        while True:
             actions = agent.act(states)
             env_info = env.step(actions)[brain_name]
             next_states = env_info.vector_observations
@@ -51,15 +50,15 @@ def ddpg_train(
             with open("log.txt", "w") as f:
                 sys.stdout = f
                 print(
-                    "\rEpisode {}\tAverage Score: {:.2f}".format(
-                        episode, np.mean(scores_window_100)
+                    "\rEpisode {}\tAverage Score: {:.2f}\tMax Score: {:.2f}\tStd Score: {:.2f}".format(
+                        episode, np.mean(scores_window_100), np.max(scores_window_100), np.std(scores_window_100)
                     )
                 )
 
                 sys.stdout = original_stdout
                 print(
-                    "\rEpisode {}\tAverage Score: {:.2f}".format(
-                        episode, np.mean(scores_window_100)
+                    "\rEpisode {}\tAverage Score: {:.2f}\tMax Score: {:.2f}\tStd Score: {:.2f}".format(
+                        episode, np.mean(scores_window_100), np.max(scores_window_100), np.std(scores_window_100)
                     )
                 )
 
