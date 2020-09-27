@@ -49,6 +49,7 @@ class Agent:
         self.seed = random.seed(random_seed)
         self.agent_params = agent_params
         self.grad_clip = self.agent_params["GRAD_CLIP"]
+        self.num_agents = num_agents
 
         # Actor Network (Local and target Network)
         self.actor_local = Actor(
@@ -92,6 +93,9 @@ class Agent:
             weight_decay=self.agent_params["WEIGHT_DECAY"],
         )
 
+        self.hard_copy_weights(self.actor_target, self.actor_local)
+        self.hard_copy_weights(self.critic_target, self.critic_local)
+
         # Noise process
         self.noise = OUNoise((num_agents, action_size), random_seed)
         self.add_noise = self.agent_params["ADD_NOISE"]
@@ -106,6 +110,11 @@ class Agent:
 
         # timestep
         self.timestep = 0
+
+    def hard_copy_weights(self, target, source):
+        """ copy weights from source to target network (part of initialization)"""
+        for target_param, param in zip(target.parameters(), source.parameters()):
+            target_param.data.copy_(param.data)
 
     def step(self, states, actions, rewards, next_states, dones):
         """Save experience in replay memory, and use random sample from buffer to learn."""
@@ -168,7 +177,9 @@ class Agent:
         Q_expected = self.critic_local(states, actions)
         critic_loss = F.mse_loss(Q_expected, Q_targets)
         # Minimize the loss
-        self.critic_optimizer.zero_grad()
+        for p in self.critic_local.parameters():
+            p.grad = None
+
         critic_loss.backward()
 
         if grad_clip:
@@ -182,7 +193,9 @@ class Agent:
         actions_pred = self.actor_local(states)
         actor_loss = -self.critic_local(states, actions_pred).mean()
         # Minimize the loss
-        self.actor_optimizer.zero_grad()
+        # self.actor_optimizer.zero_grad()
+        for p in self.actor_local.parameters():
+            p.grad = None
         actor_loss.backward()
         self.actor_optimizer.step()
 
@@ -215,6 +228,7 @@ class OUNoise:
 
     def __init__(self, size, seed, mu=0.0, theta=0.15, sigma=0.2):
         """Initialize parameters and noise process."""
+        self.size = size
         self.mu = mu * np.ones(size)
         self.theta = theta
         self.sigma = sigma
@@ -229,7 +243,7 @@ class OUNoise:
         """Update internal state and return it as a noise sample."""
         x = self.state
         dx = self.theta * (self.mu - x) + self.sigma * np.random.standard_normal(
-            size=self.mu.shape
+            size=self.size
         )
         self.state = x + dx
         return self.state
