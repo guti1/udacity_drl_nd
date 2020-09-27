@@ -1,8 +1,23 @@
 import numpy as np
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+
+def _reset_parameters(layers, final_weight_lim):
+    for layer in layers:
+        if layer != layers[-1]:
+            fan_in = layer.weight.data.size()[0]
+            lim = 1.0 / np.sqrt(fan_in)
+            nn.init.uniform_(layer.weight, -lim, lim)
+        else:
+            layer.weight.data.uniform_(-final_weight_lim, final_weight_lim)
+
+
+def _reset_parameters_xavier(layers):
+    for layer in layers:
+        layer.init.xavier_normal_(layer.weight)
+        layer.bias.data.fill_(0.01)
 
 
 class Actor(nn.Module):
@@ -31,25 +46,16 @@ class Actor(nn.Module):
         self.seed = torch.manual_seed(seed)
         self.batch_norm = use_batch_norm
 
-        def _init_weights_opt(m):
-            if isinstance(m, nn.Linear):
-                nn.init.xavier_normal_(m.weight)
-                m.bias.data.fill_(0.01)
-
-        def _init_weights(m):
-            if isinstance(m, nn.Linear):
-                fan_in = m.weight.data.size()[0]
-                lim = 1.0 / np.sqrt(fan_in)
-                nn.init.uniform_(m.weight, -lim, lim)
-
         # Construction of the NN conditionally on batch-norm
         if self.batch_norm:
             layers = [state_size] + hidden_layers
             # Input layer
-            self.hidden_layers = nn.ModuleList([nn.BatchNorm1d(state_size)])
+            self.hidden_layers = nn.ModuleList()
             # Remaining hidden layers
             for i in range(len(layers) - 1):
-                self.hidden_layers.extend([nn.Linear(layers[i], layers[i + 1])])
+                self.hidden_layers.extend(
+                    [nn.Linear(layers[i], layers[i + 1], bias=False)]
+                )
                 self.hidden_layers.extend([nn.BatchNorm1d(layers[i + 1])])
 
         # Construction without batch-norm
@@ -63,14 +69,10 @@ class Actor(nn.Module):
         # Finally the output layer
         self.output = nn.Linear(hidden_layers[-1], action_size)
 
-        # Weight init
-        if not use_xavier_init:
-            self.hidden_layers.apply(_init_weights)
-            self.output.weight.data.uniform_(-3e-3, 3e-3)
-
+        if use_xavier_init:
+            _reset_parameters_xavier(self.hidden_layers)
         else:
-            self.hidden_layers.apply(_init_weights_opt)
-            self.output.apply(_init_weights_opt)
+            _reset_parameters(self.hidden_layers, 3e-3)
 
     def forward(self, state):
         """Build an actor (policy) network that maps states -> actions.
@@ -81,10 +83,10 @@ class Actor(nn.Module):
         if self.batch_norm:
             x = self.hidden_layers[0](x)
             for i in range(1, len(self.hidden_layers) - 1, 2):
-                x = F.relu(self.hidden_layers[i + 1](self.hidden_layers[i](x)))
+                x = F.leaky_relu(self.hidden_layers[i + 1](self.hidden_layers[i](x)))
         else:
             for j in self.hidden_layers:
-                x = F.relu(j(x))
+                x = F.leaky_relu(j(x))
 
         return torch.tanh(self.output(x))
 
@@ -106,17 +108,6 @@ class Critic(nn.Module):
         super(Critic, self).__init__()
         self.seed = torch.manual_seed(seed)
 
-        def _init_weights_opt(m):
-            if isinstance(m, nn.Linear):
-                nn.init.xavier_normal_(m.weight)
-                m.bias.data.fill_(0.01)
-
-        def _init_weights(m):
-            if isinstance(m, nn.Linear):
-                fan_in = m.weight.data.size()[0]
-                lim = 1.0 / np.sqrt(fan_in)
-                nn.init.uniform_(m.weight, -lim, lim)
-
         self.hidden_layers = nn.ModuleList(
             [
                 nn.Linear(state_size, hidden_layers[0]),
@@ -129,22 +120,21 @@ class Critic(nn.Module):
         # Finally the output layer
         self.output = nn.Linear(hidden_layers[-1], 1)
 
-        # Weight init
-        if not use_xavier_init:
-            self.hidden_layers.apply(_init_weights)
-            self.output.weight.data.uniform_(-3e-4, 3e-4)
-
+        if use_xavier_init:
+            _reset_parameters_xavier(self.hidden_layers)
         else:
-            self.hidden_layers.apply(_init_weights_opt)
-            self.output.apply(_init_weights_opt)
+            _reset_parameters(self.hidden_layers, 3e-3)
 
     def forward(self, state, action):
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
 
-        x = F.relu(self.hidden_layers[0](state))
+        x = F.leaky_relu(self.hidden_layers[0](state))
         x = torch.cat((x, action), dim=1)
 
         for i in range(1, len(self.hidden_layers)):
-            x = F.relu(self.hidden_layers[i](x))
+            x = F.leaky_relu(self.hidden_layers[i](x))
 
         return self.output(x)
+
+
+it.uniform_(m.weight, -lim, lim)
