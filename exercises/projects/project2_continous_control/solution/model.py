@@ -135,6 +135,3 @@ class Critic(nn.Module):
             x = F.leaky_relu(self.hidden_layers[i](x))
 
         return self.output(x)
-
-
-it.uniform_(m.weight, -lim, lim)
