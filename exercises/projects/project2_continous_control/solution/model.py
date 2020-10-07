@@ -14,10 +14,13 @@ def _reset_parameters(layers, final_weight_lim):
             layer.weight.data.uniform_(-final_weight_lim, final_weight_lim)
 
 
-def _reset_parameters_xavier(layers):
+def _reset_parameters_xavier(layers, final_weight_lim):
     for layer in layers:
-        layer.init.xavier_normal_(layer.weight)
-        layer.bias.data.fill_(0.01)
+        if type(layer) == nn.Linear and layer != layers[-1]:
+            nn.init.xavier_normal(layer.weight)
+            layer.bias.data.fill_(0.01)
+        else:
+            pass
 
 
 class Actor(nn.Module):
@@ -54,7 +57,7 @@ class Actor(nn.Module):
             # Remaining hidden layers
             for i in range(len(layers) - 1):
                 self.hidden_layers.extend(
-                    [nn.Linear(layers[i], layers[i + 1], bias=False)]
+                    [nn.Linear(layers[i], layers[i + 1])]
                 )
                 self.hidden_layers.extend([nn.BatchNorm1d(layers[i + 1])])
 
@@ -70,7 +73,7 @@ class Actor(nn.Module):
         self.output = nn.Linear(hidden_layers[-1], action_size)
 
         if use_xavier_init:
-            _reset_parameters_xavier(self.hidden_layers)
+            _reset_parameters_xavier(self.hidden_layers, 3e-3)
         else:
             _reset_parameters(self.hidden_layers, 3e-3)
 
@@ -121,7 +124,7 @@ class Critic(nn.Module):
         self.output = nn.Linear(hidden_layers[-1], 1)
 
         if use_xavier_init:
-            _reset_parameters_xavier(self.hidden_layers)
+            _reset_parameters_xavier(self.hidden_layers, 3e-3)
         else:
             _reset_parameters(self.hidden_layers, 3e-3)
 
