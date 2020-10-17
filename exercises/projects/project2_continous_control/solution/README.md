@@ -18,7 +18,7 @@ There are two options to solve the project:
 1. The Unity environment contain a single agent
 2. The environment contains 20 identical agents, each with its own copy of the environment.
 
-Accordingly there are criterias to solve the environment are the following:
+Accordingly the criteria to solve the environment are the following:
 
 1. The task is episodic, and in order to solve the environment, the agent must get an average score of +30 over 
 100 consecutive episodes.
@@ -57,7 +57,7 @@ The environment is considered solved, when the average (over 100 episodes) of th
     follow the instructions to [enable a virtual screen](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Training-on-Amazon-Web-Service.md)
     , and then download the environment for the **Linux** operating system above._)
     
-  Since the setup of the repo is aimed for docker-based development i suggest to choose the headless versions. After 
+  Since the setup of the repo is aimed for docker-based development I suggest to choose the headless versions. After 
   downloading the environment please check the usage in the notebook [here](../Continuous_Control.ipynb)
   
 - Docker-based execution
@@ -77,6 +77,8 @@ The environment is considered solved, when the average (over 100 episodes) of th
 ## Solution
 The report on the results for this projects can be found [here](./), along with the notebook to reproduce the 
 reported results as well.
+
+The usage of the agent and the utils are presented in the [solution notebook](./solution.ipynb). 
 
   
       
