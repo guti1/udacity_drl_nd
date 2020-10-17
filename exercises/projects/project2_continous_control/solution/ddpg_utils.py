@@ -66,14 +66,14 @@ def ddpg_train(
             # Agent has reached target average score => end train
             print(
                 "\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}".format(
-                    episode - 100, np.mean(scores_window_100)
+                    episode, np.mean(scores_window_100)
                 )
             )
             torch.save(
-                agent.actor_local.state_dict(), actor_model_pth + "_solution"
+                agent.actor_local.state_dict(), "solution_" + actor_model_pth
             )
             torch.save(
-                agent.critic_local.state_dict(), critic_model_pth + "_solution"
+                agent.critic_local.state_dict(), "solution" + critic_model_pth
             )
             break
 
