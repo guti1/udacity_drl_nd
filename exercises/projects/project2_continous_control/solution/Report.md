@@ -84,10 +84,11 @@ convergence a bit more unstable, the variance was higher, the environment was so
 ![exp3](./experiments/exp_3.png)
 
 
-Next I decided to try the combination of the above changes: higher learning rate and deeper networks:
+Next I decided to try the combination of the above changes, higher learning rate and deeper networks:
+![exp4](./experiments/exp_4.png)
 
-
-
+As we can see from the combinated plot, the second experiment with the deeper networks yielded the fastest convergence.
+![comparison](./experiments/comparison.png)
 
 
 
@@ -97,6 +98,4 @@ Next I decided to try the combination of the above changes: higher learning rate
 - [ ] Implement integration with [Optuna](https://github.com/optuna/optuna) for parameter search.
 - [ ] Spike integration possibilities with [Ray - Rllib](https://docs.ray.io/en/master/rllib.html) as a distributed 
 example.
-
-
 

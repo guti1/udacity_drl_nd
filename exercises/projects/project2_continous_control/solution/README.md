@@ -78,9 +78,8 @@ The environment is considered solved, when the average (over 100 episodes) of th
 The report on the results for this projects can be found [here](./), along with the notebook to reproduce the 
 reported results as well.
 
-The usage of the agent and the utils are presented in the [solution notebook](./solution.ipynb). 
+The usage of the agent and the utils are presented in the [solution notebook](./solution.ipynb). The configuration for 
+the experiments along with the plots and the saved network weights are located [here](./experiments).
 
-  
-      
- 
+The report about the experiments with the hyperparameters can be found [here](Report.md).
 
