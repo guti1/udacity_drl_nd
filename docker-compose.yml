@@ -10,7 +10,7 @@ services:
     volumes:
       - .:/tf
     command: [ "sh", "-c",
-               "xvfb-run -s '-screen 0 1400x900x24' jupyter-lab --ip 0.0.0.0 --port 8888 --allow-root --LabApp.token=''"]
+               "xvfb-run -a '-screen 1 1400x900x24' jupyter-lab --ip 0.0.0.0 --port 8888 --allow-root --LabApp.token=''"]
   jupyter-gpu:
     build:
       context: ./Docker
@@ -30,4 +30,4 @@ services:
     image: "guti1/drlnd-debug"
     volumes:
       - .:/opt/project
-    command: [ "sh", "-c"]
+    command: [ "sh", "-c", "xvfb-run -s '-screen 0 1400x900x24'"]
