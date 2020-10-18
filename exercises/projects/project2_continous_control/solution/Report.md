@@ -58,6 +58,10 @@ agent_params = {
 After predefining the experiments they can be appended to a list and loop over it saving the results to a predefined 
 location as in the [notebook](./solution.ipynb)
 
+As you can see from the parameters above, both the actor and the critic networks are 2 layers deep with 400 and 300 
+neurons in each. The input layer is as wide as our state vector in the current example, namely 33. The second layer of 
+the critic network also gets the actions as inputs, thus that is expanded by action size, which is 4. I choose 
+[leaky-relu](https://pytorch.org/docs/stable/generated/torch.nn.LeakyReLU.html#torch.nn.LeakyReLU) as activation.
 
 ## 2. Experiments 
 
