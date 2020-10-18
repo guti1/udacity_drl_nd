@@ -51,14 +51,20 @@ def ddpg_train(
                 sys.stdout = f
                 print(
                     "\rEpisode {}\tAverage Score: {:.2f}\tMax Score: {:.2f}\tStd Score: {:.2f}".format(
-                        episode, np.mean(scores_window_100), np.max(scores_window_100), np.std(scores_window_100)
+                        episode,
+                        np.mean(scores_window_100),
+                        np.max(scores_window_100),
+                        np.std(scores_window_100),
                     )
                 )
 
                 sys.stdout = original_stdout
                 print(
                     "\rEpisode {}\tAverage Score: {:.2f}\tMax Score: {:.2f}\tStd Score: {:.2f}".format(
-                        episode, np.mean(scores_window_100), np.max(scores_window_100), np.std(scores_window_100)
+                        episode,
+                        np.mean(scores_window_100),
+                        np.max(scores_window_100),
+                        np.std(scores_window_100),
                     )
                 )
 
@@ -69,12 +75,8 @@ def ddpg_train(
                     episode, np.mean(scores_window_100)
                 )
             )
-            torch.save(
-                agent.actor_local.state_dict(), "solution_" + actor_model_pth
-            )
-            torch.save(
-                agent.critic_local.state_dict(), "solution" + critic_model_pth
-            )
+            torch.save(agent.actor_local.state_dict(), actor_model_pth)
+            torch.save(agent.critic_local.state_dict(), critic_model_pth)
             break
 
     return scores
