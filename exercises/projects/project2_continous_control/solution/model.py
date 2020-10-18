@@ -56,9 +56,7 @@ class Actor(nn.Module):
             self.hidden_layers = nn.ModuleList()
             # Remaining hidden layers
             for i in range(len(layers) - 1):
-                self.hidden_layers.extend(
-                    [nn.Linear(layers[i], layers[i + 1])]
-                )
+                self.hidden_layers.extend([nn.Linear(layers[i], layers[i + 1])])
                 self.hidden_layers.extend([nn.BatchNorm1d(layers[i + 1])])
 
         # Construction without batch-norm
@@ -79,7 +77,7 @@ class Actor(nn.Module):
 
     def forward(self, state):
         """Build an actor (policy) network that maps states -> actions.
-            Note the final tanh activation which is mapping the actions to [-1, 1]
+        Note the final tanh activation which is mapping the actions to [-1, 1]
         """
         x = state
 
