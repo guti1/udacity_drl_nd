@@ -11,7 +11,7 @@ pandas
 cffi
 pyvirtualdisplay
 tensorflow==1.15.2
-protobuf==3.5.2
+protobuf==3.18.3
 scipy
 ipykernel
 seaborn==0.8.1
